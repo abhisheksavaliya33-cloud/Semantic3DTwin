@@ -1,0 +1,10 @@
+Flask
+opencv-python
+torch
+numpy
+open3d==0.19.0
+Pillow
+ultralytics
+transformers
+Werkzeug
+gunicorn

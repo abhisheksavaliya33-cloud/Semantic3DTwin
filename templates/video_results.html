@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic 3D Twin - Video Result</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #06111d;
+            --panel: #0b1929;
+            --panel2: #102238;
+            --border: #1c3853;
+            --text: #edf5fb;
+            --muted: #8da4b8;
+            --cyan: #66ddff;
+            --green: #63dfa2;
+            --yellow: #f0ce7a;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Inter, Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(circle at top right, #103149 0%, #071421 38%, #050d16 100%);
+            color: var(--text);
+        }
+
+        header {
+            min-height: 76px;
+            padding: 14px 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: rgba(5, 13, 22, 0.96);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-title {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .brand-title span {
+            color: var(--cyan);
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .new-analysis {
+            color: var(--text);
+            text-decoration: none;
+            padding: 10px 16px;
+            border: 1px solid #315472;
+            border-radius: 8px;
+            background: #102238;
+        }
+
+        .new-analysis:hover {
+            background: #17344e;
+        }
+
+        main {
+            width: min(1450px, 94%);
+            margin: 30px auto 60px;
+        }
+
+        .hero {
+            margin-bottom: 24px;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 9px;
+        }
+
+        .hero p {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .complete-badge {
+            flex-shrink: 0;
+            padding: 9px 14px;
+            border-radius: 999px;
+            border: 1px solid #2f6c51;
+            background: #113126;
+            color: var(--green);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .status-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .status-chip {
+            padding: 7px 11px;
+            border-radius: 999px;
+            background: #0e2135;
+            border: 1px solid #25425f;
+            color: #b4c9dc;
+            font-size: 11px;
+        }
+
+        .status-chip::before {
+            content: "";
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            margin-right: 7px;
+            border-radius: 50%;
+            background: var(--green);
+        }
+
+        .card {
+            margin-bottom: 22px;
+            padding: 23px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(11, 25, 41, 0.97);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 7px;
+        }
+
+        .card-description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat {
+            padding: 19px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--panel2);
+        }
+
+        .stat-label {
+            color: #91adca;
+            font-size: 10px;
+            letter-spacing: .7px;
+            margin-bottom: 9px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 850;
+        }
+
+        .stat-value.highlight {
+            color: var(--cyan);
+        }
+
+        .stat-note {
+            color: #718ba2;
+            font-size: 10px;
+            margin-top: 6px;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .process-step {
+            position: relative;
+            min-height: 145px;
+            padding: 16px 13px;
+            border-radius: 11px;
+            border: 1px solid #28506d;
+            background: #0f2236;
+        }
+
+        .process-number {
+            width: 29px;
+            height: 29px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #163f54;
+            color: var(--cyan);
+            font-size: 11px;
+            font-weight: 900;
+            margin-bottom: 11px;
+        }
+
+        .process-title {
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.45;
+            margin-bottom: 6px;
+        }
+
+        .process-text {
+            color: var(--muted);
+            font-size: 9px;
+            line-height: 1.55;
+        }
+
+        .process-done {
+            margin-top: 10px;
+            color: var(--green);
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .viewer-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 310px;
+            gap: 18px;
+        }
+
+        #viewer {
+            position: relative;
+            width: 100%;
+            height: 620px;
+            overflow: hidden;
+            border-radius: 11px;
+            border: 1px solid #213e58;
+            background: #02070d;
+        }
+
+        .viewer-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 4;
+            padding: 7px 10px;
+            border-radius: 7px;
+            border: 1px solid #244760;
+            background: rgba(4, 12, 20, .84);
+            color: #a6bfd3;
+            font-size: 10px;
+            pointer-events: none;
+        }
+
+        .viewer-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 11px;
+        }
+
+        .control-btn {
+            padding: 8px 12px;
+            border-radius: 7px;
+            border: 1px solid #315675;
+            background: #10263b;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .control-btn:hover {
+            background: #18384f;
+        }
+
+        .side-panel {
+            padding: 16px;
+            border-radius: 11px;
+            border: 1px solid #213e58;
+            background: #0e1e30;
+        }
+
+        .side-panel h3 {
+            font-size: 14px;
+            margin-bottom: 11px;
+        }
+
+        .simple-info {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .simple-info-item {
+            padding: 11px;
+            border-radius: 8px;
+            border: 1px solid #213e58;
+            background: #12263b;
+        }
+
+        .simple-info-label {
+            color: var(--muted);
+            font-size: 9px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .simple-info-value {
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .object-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 335px;
+            overflow-y: auto;
+            margin-top: 14px;
+        }
+
+        .object-item {
+            padding: 9px 10px;
+            border-radius: 8px;
+            border: 1px solid #213e58;
+            background: #12263b;
+            font-size: 10px;
+            color: #d7e5f1;
+        }
+
+        .object-item strong {
+            color: var(--cyan);
+        }
+
+        .downloads {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .download {
+            display: block;
+            padding: 14px;
+            text-decoration: none;
+            border-radius: 9px;
+            border: 1px solid #264763;
+            background: #102238;
+            color: var(--cyan);
+        }
+
+        .download:hover {
+            background: #17344c;
+        }
+
+        .download strong {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .download span {
+            color: var(--muted);
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .notice {
+            margin-top: 19px;
+            padding: 14px 16px;
+            border-radius: 9px;
+            border: 1px solid #5d512d;
+            background: #261f10;
+            color: #dac98b;
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        footer {
+            padding: 24px;
+            text-align: center;
+            color: #688197;
+            border-top: 1px solid var(--border);
+            background: #050d16;
+            font-size: 10px;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .process-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .viewer-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .downloads {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            header {
+                padding: 14px 18px;
+            }
+
+            main {
+                width: 92%;
+            }
+
+            .hero-top {
+                flex-direction: column;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .stats-grid,
+            .process-grid,
+            .downloads {
+                grid-template-columns: 1fr;
+            }
+
+            #viewer {
+                height: 470px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <div class="brand-title">Semantic <span>3D Twin</span></div>
+        <div class="brand-subtitle">Indoor Digital Twin Reconstruction Platform</div>
+    </div>
+
+    <a class="new-analysis" href="{{ url_for('index') }}">
+        ← New Analysis
+    </a>
+</header>
+
+<main>
+
+    <!-- ===================================================== -->
+    <!-- SIMPLE PAGE HEADER                                    -->
+    <!-- ===================================================== -->
+
+    <section class="hero">
+        <div class="hero-top">
+            <div>
+                <h1>Video Digital Twin Result</h1>
+                <p>
+                    Final semantic 3D reconstruction and room-level result from the uploaded indoor video.
+                </p>
+            </div>
+
+            <div class="complete-badge">
+                STEP 36 COMPLETE
+            </div>
+        </div>
+
+        <div class="status-row">
+            <div class="status-chip">Video Processed</div>
+            <div class="status-chip">3D Reconstruction Complete</div>
+            <div class="status-chip">Semantic Fusion Complete</div>
+            <div class="status-chip">Room Classified</div>
+            <div class="status-chip">Final Report Ready</div>
+        </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- SIMPLE FINAL OUTPUT                                   -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+        <h2>Final Output</h2>
+        <div class="card-description">
+            Main result of the complete video-analysis pipeline.
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat">
+                <div class="stat-label">Predicted Room</div>
+                <div class="stat-value highlight">
+                    {{ predicted_room.display_name
+                       if predicted_room and predicted_room.display_name
+                       else "Indoor Room" }}
+                </div>
+                <div class="stat-note">
+                    Semantic room classification
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Classification Confidence</div>
+                <div class="stat-value">
+                    {% if predicted_room and predicted_room.confidence is defined %}
+                        {{ "%.1f"|format(predicted_room.confidence * 100) }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </div>
+                <div class="stat-note">
+                    Relative heuristic confidence
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Semantic Objects</div>
+                <div class="stat-value">
+                    {{ semantic_statistics.fused_semantic_objects
+                       if semantic_statistics and semantic_statistics.fused_semantic_objects is defined
+                       else (fused_semantic_objects|length) }}
+                </div>
+                <div class="stat-note">
+                    Final deduplicated objects
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-label">Processed Frames</div>
+                <div class="stat-value">
+                    {{ processed_frame_count }}
+                </div>
+                <div class="stat-note">
+                    Video frames used for analysis
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- PROCESS OVERVIEW                                      -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+        <h2>Process Overview</h2>
+        <div class="card-description">
+            Simple overview of how the uploaded video is converted into a semantic 3D digital twin.
+        </div>
+
+        <div class="process-grid">
+
+            <div class="process-step">
+                <div class="process-number">1</div>
+                <div class="process-title">Video Input</div>
+                <div class="process-text">
+                    The uploaded indoor video is read and representative frames are extracted.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">2</div>
+                <div class="process-title">Object Detection</div>
+                <div class="process-text">
+                    YOLOv8n detects supported indoor objects in the extracted frames.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">3</div>
+                <div class="process-title">Depth Estimation</div>
+                <div class="process-text">
+                    Depth Anything V2 estimates monocular relative depth for each processed frame.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">4</div>
+                <div class="process-title">3D Reconstruction</div>
+                <div class="process-text">
+                    Open3D converts RGB and depth information into per-frame point clouds.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">5</div>
+                <div class="process-title">Point Cloud Fusion</div>
+                <div class="process-text">
+                    FPFH, RANSAC and ICP register frames and merge them into one room point cloud.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">6</div>
+                <div class="process-title">Semantic Fusion</div>
+                <div class="process-text">
+                    Repeated object observations are combined into a final semantic object map.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+            <div class="process-step">
+                <div class="process-number">7</div>
+                <div class="process-title">Room Intelligence</div>
+                <div class="process-text">
+                    Semantic evidence is used to infer the room type and produce the final digital twin report.
+                </div>
+                <div class="process-done">✓ COMPLETE</div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- SIMPLE 3D OUTPUT                                      -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+        <h2>3D Digital Twin</h2>
+        <div class="card-description">
+            Explore the fused room reconstruction and the final semantic objects.
+        </div>
+
+        <div class="viewer-layout">
+
+            <div>
+                <div id="viewer">
+                    <div class="viewer-overlay">
+                        Mouse: rotate • wheel: zoom • right-drag: pan
+                    </div>
+                </div>
+
+                <div class="viewer-controls">
+                    <button class="control-btn" onclick="resetCamera()">Reset</button>
+                    <button class="control-btn" onclick="setFrontView()">Front</button>
+                    <button class="control-btn" onclick="setTopView()">Top</button>
+                    <button class="control-btn" onclick="setSideView()">Side</button>
+                    <button class="control-btn" onclick="toggleAutoRotate()">Auto Rotate</button>
+                    <button class="control-btn" onclick="toggleMarkers()">Semantic Markers</button>
+                    <button class="control-btn" onclick="increasePointSize()">Point +</button>
+                    <button class="control-btn" onclick="decreasePointSize()">Point −</button>
+                </div>
+            </div>
+
+            <aside class="side-panel">
+
+                <h3>Result Summary</h3>
+
+                <div class="simple-info">
+
+                    <div class="simple-info-item">
+                        <div class="simple-info-label">Room</div>
+                        <div class="simple-info-value">
+                            {{ predicted_room.display_name
+                               if predicted_room and predicted_room.display_name
+                               else "Indoor Room" }}
+                        </div>
+                    </div>
+
+                    <div class="simple-info-item">
+                        <div class="simple-info-label">Registered Frames</div>
+                        <div class="simple-info-value">
+                            {{ fusion_result.registered_frames
+                               if fusion_result and fusion_result.registered_frames is defined
+                               else 0 }}
+                            /
+                            {{ fusion_result.attempted_frames
+                               if fusion_result and fusion_result.attempted_frames is defined
+                               else 0 }}
+                        </div>
+                    </div>
+
+                    <div class="simple-info-item">
+                        <div class="simple-info-label">Final Objects</div>
+                        <div class="simple-info-value">
+                            {{ fused_semantic_objects|length }}
+                        </div>
+                    </div>
+
+                </div>
+
+                <h3 style="margin-top:18px;">Detected Objects</h3>
+
+                <div class="object-list">
+                    {% for object in fused_semantic_objects %}
+                        <div class="object-item">
+                            <strong>{{ object.object }}</strong>
+
+                            {% if object.average_confidence is defined %}
+                                — {{ "%.1f"|format(object.average_confidence * 100) }}%
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="object-item">
+                            No semantic objects available.
+                        </div>
+                    {% endfor %}
+                </div>
+
+            </aside>
+
+        </div>
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ESSENTIAL DOWNLOADS ONLY                              -->
+    <!-- ===================================================== -->
+
+    <section class="card">
+        <h2>Downloads</h2>
+        <div class="card-description">
+            Essential final project outputs.
+        </div>
+
+        <div class="downloads">
+
+            {% if video_filename %}
+            <a class="download"
+               href="{{ url_for('serve_video', filename=video_filename) }}">
+                <strong>Original Video</strong>
+                <span>Uploaded room video</span>
+            </a>
+            {% endif %}
+
+            {% if merged_pointcloud_filename %}
+            <a class="download"
+               href="{{ url_for('serve_video_fusion', filename=merged_pointcloud_filename) }}">
+                <strong>Merged 3D Point Cloud</strong>
+                <span>Final fused PLY reconstruction</span>
+            </a>
+            {% endif %}
+
+            {% if room_intelligence_filename %}
+            <a class="download"
+               href="{{ url_for('serve_room_intelligence', filename=room_intelligence_filename) }}">
+                <strong>Room Intelligence</strong>
+                <span>Room classification JSON</span>
+            </a>
+            {% endif %}
+
+            {% if final_report_filename %}
+            <a class="download"
+               href="{{ url_for('serve_final_report', filename=final_report_filename) }}">
+                <strong>Final Digital Twin Report</strong>
+                <span>Unified Step 36 JSON report</span>
+            </a>
+            {% endif %}
+
+        </div>
+
+        <div class="notice">
+            <strong>Important:</strong>
+            Depth Anything V2 provides monocular relative depth.
+            The reconstructed point cloud and 3D coordinates are approximate and non-metric;
+            they should not be interpreted as accurate measurements in meters.
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    Semantic 3D Reconstruction for Indoor Digital Twins
+</footer>
+
+
+<script>
+    const fusedSemanticObjects = {{ fused_semantic_objects | tojson }};
+    const mergedFilename = {{ merged_pointcloud_filename | tojson }};
+
+    let scene;
+    let camera;
+    let renderer;
+    let controls;
+    let modelGroup;
+    let pointCloud = null;
+    let markerGroup;
+
+    let currentCenter = new THREE.Vector3(0, 0, 0);
+    let currentSceneScale = 1;
+
+    let pointSize = 0.018;
+    let autoRotate = false;
+    let markersVisible = true;
+
+
+    // ========================================================
+    // THREE.JS SETUP
+    // ========================================================
+
+    function initializeViewer() {
+
+        const container = document.getElementById("viewer");
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x02070d);
+
+        camera = new THREE.PerspectiveCamera(
+            60,
+            container.clientWidth / container.clientHeight,
+            0.001,
+            1000
+        );
+
+        camera.position.set(0, 0.2, 2.4);
+
+        renderer = new THREE.WebGLRenderer({
+            antialias: true
+        });
+
+        renderer.setPixelRatio(
+            Math.min(window.devicePixelRatio, 2)
+        );
+
+        renderer.setSize(
+            container.clientWidth,
+            container.clientHeight
+        );
+
+        container.appendChild(
+            renderer.domElement
+        );
+
+        controls = new THREE.OrbitControls(
+            camera,
+            renderer.domElement
+        );
+
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.06;
+
+        modelGroup = new THREE.Group();
+        markerGroup = new THREE.Group();
+
+        modelGroup.add(
+            markerGroup
+        );
+
+        scene.add(
+            modelGroup
+        );
+
+        const ambientLight = new THREE.AmbientLight(
+            0xffffff,
+            1
+        );
+
+        scene.add(
+            ambientLight
+        );
+
+        loadMergedPointCloud();
+
+        window.addEventListener(
+            "resize",
+            onWindowResize
+        );
+
+        animate();
+    }
+
+
+    // ========================================================
+    // LOAD MERGED PLY
+    // ========================================================
+
+    function loadMergedPointCloud() {
+
+        if (!mergedFilename) {
+            return;
+        }
+
+        const loader = new THREE.PLYLoader();
+
+        const plyUrl =
+            "{{ url_for('serve_video_fusion', filename='__MERGED__') }}"
+                .replace(
+                    "__MERGED__",
+                    encodeURIComponent(mergedFilename)
+                );
+
+        loader.load(
+            plyUrl,
+
+            function (geometry) {
+
+                geometry.computeBoundingBox();
+
+                const box =
+                    geometry.boundingBox;
+
+                currentCenter =
+                    new THREE.Vector3();
+
+                box.getCenter(
+                    currentCenter
+                );
+
+                const size =
+                    new THREE.Vector3();
+
+                box.getSize(
+                    size
+                );
+
+                const maxSize =
+                    Math.max(
+                        size.x,
+                        size.y,
+                        size.z
+                    );
+
+                currentSceneScale =
+                    maxSize > 0
+                        ? 1.65 / maxSize
+                        : 1;
+
+                const materialOptions = {
+                    size: pointSize,
+                    sizeAttenuation: true
+                };
+
+                if (
+                    geometry.hasAttribute(
+                        "color"
+                    )
+                ) {
+                    materialOptions.vertexColors = true;
+                } else {
+                    materialOptions.color = 0x76dfff;
+                }
+
+                const material =
+                    new THREE.PointsMaterial(
+                        materialOptions
+                    );
+
+                pointCloud =
+                    new THREE.Points(
+                        geometry,
+                        material
+                    );
+
+                pointCloud.scale.setScalar(
+                    currentSceneScale
+                );
+
+                pointCloud.position
+                    .copy(
+                        currentCenter
+                    )
+                    .multiplyScalar(
+                        -currentSceneScale
+                    );
+
+                modelGroup.add(
+                    pointCloud
+                );
+
+                createSemanticMarkers();
+
+                resetCamera();
+            },
+
+            undefined,
+
+            function (error) {
+                console.error(
+                    "Failed to load merged PLY:",
+                    error
+                );
+            }
+        );
+    }
+
+
+    // ========================================================
+    // SEMANTIC MARKERS
+    // ========================================================
+
+    function createSemanticMarkers() {
+
+        markerGroup.clear();
+
+        fusedSemanticObjects.forEach(
+            function (object) {
+
+                if (
+                    !object.position_3d
+                ) {
+                    return;
+                }
+
+                const raw =
+                    new THREE.Vector3(
+                        Number(object.position_3d.x),
+                        Number(object.position_3d.y),
+                        Number(object.position_3d.z)
+                    );
+
+                const displayPosition =
+                    raw.clone()
+                        .sub(
+                            currentCenter
+                        )
+                        .multiplyScalar(
+                            currentSceneScale
+                        );
+
+                const markerGeometry =
+                    new THREE.SphereGeometry(
+                        0.018,
+                        12,
+                        12
+                    );
+
+                const markerMaterial =
+                    new THREE.MeshBasicMaterial({
+                        color: 0xffd166
+                    });
+
+                const marker =
+                    new THREE.Mesh(
+                        markerGeometry,
+                        markerMaterial
+                    );
+
+                marker.position.copy(
+                    displayPosition
+                );
+
+                markerGroup.add(
+                    marker
+                );
+
+                const label =
+                    createTextSprite(
+                        object.object
+                    );
+
+                label.position.copy(
+                    displayPosition
+                );
+
+                label.position.y += 0.045;
+
+                markerGroup.add(
+                    label
+                );
+            }
+        );
+    }
+
+
+    function createTextSprite(text) {
+
+        const canvas =
+            document.createElement(
+                "canvas"
+            );
+
+        const context =
+            canvas.getContext(
+                "2d"
+            );
+
+        canvas.width = 256;
+        canvas.height = 64;
+
+        context.fillStyle =
+            "rgba(4, 15, 24, 0.88)";
+
+        context.fillRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        context.font =
+            "bold 26px Arial";
+
+        context.fillStyle =
+            "#66ddff";
+
+        context.textAlign =
+            "center";
+
+        context.textBaseline =
+            "middle";
+
+        context.fillText(
+            text,
+            128,
+            32
+        );
+
+        const texture =
+            new THREE.CanvasTexture(
+                canvas
+            );
+
+        const material =
+            new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true
+            });
+
+        const sprite =
+            new THREE.Sprite(
+                material
+            );
+
+        sprite.scale.set(
+            0.18,
+            0.045,
+            1
+        );
+
+        return sprite;
+    }
+
+
+    // ========================================================
+    // VIEWER CONTROLS
+    // ========================================================
+
+    function resetCamera() {
+        camera.position.set(
+            0,
+            0.25,
+            2.4
+        );
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+        controls.update();
+    }
+
+
+    function setFrontView() {
+        camera.position.set(
+            0,
+            0,
+            2.4
+        );
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+        controls.update();
+    }
+
+
+    function setTopView() {
+        camera.position.set(
+            0,
+            2.4,
+            0.001
+        );
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+        controls.update();
+    }
+
+
+    function setSideView() {
+        camera.position.set(
+            2.4,
+            0,
+            0
+        );
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+        controls.update();
+    }
+
+
+    function toggleAutoRotate() {
+        autoRotate =
+            !autoRotate;
+    }
+
+
+    function toggleMarkers() {
+        markersVisible =
+            !markersVisible;
+
+        markerGroup.visible =
+            markersVisible;
+    }
+
+
+    function increasePointSize() {
+
+        pointSize =
+            Math.min(
+                pointSize + 0.004,
+                0.08
+            );
+
+        if (pointCloud) {
+            pointCloud.material.size =
+                pointSize;
+        }
+    }
+
+
+    function decreasePointSize() {
+
+        pointSize =
+            Math.max(
+                pointSize - 0.004,
+                0.002
+            );
+
+        if (pointCloud) {
+            pointCloud.material.size =
+                pointSize;
+        }
+    }
+
+
+    // ========================================================
+    // RESIZE + ANIMATION
+    // ========================================================
+
+    function onWindowResize() {
+
+        const container =
+            document.getElementById(
+                "viewer"
+            );
+
+        camera.aspect =
+            container.clientWidth
+            /
+            container.clientHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            container.clientWidth,
+            container.clientHeight
+        );
+    }
+
+
+    function animate() {
+
+        requestAnimationFrame(
+            animate
+        );
+
+        if (
+            autoRotate
+            &&
+            modelGroup
+        ) {
+            modelGroup.rotation.y +=
+                0.003;
+        }
+
+        controls.update();
+
+        renderer.render(
+            scene,
+            camera
+        );
+    }
+
+
+    initializeViewer();
+</script>
+
+</body>
+</html>

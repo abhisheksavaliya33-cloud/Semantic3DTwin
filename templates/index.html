@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Semantic 3D Indoor Digital Twin Platform
+    </title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(40, 130, 180, 0.13),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at bottom left,
+                    rgba(65, 194, 255, 0.08),
+                    transparent 28%
+                ),
+                #07111f;
+
+            color: #e8eef7;
+            min-height: 100vh;
+        }
+
+        header {
+            min-height: 76px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 15px 40px;
+
+            border-bottom:
+                1px solid #1c3048;
+
+            background:
+                rgba(7, 17, 31, 0.94);
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: #63d8ff;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: #72889f;
+        }
+
+        .header-status {
+            color: #86dffb;
+            font-size: 12px;
+
+            padding: 8px 13px;
+
+            border:
+                1px solid #24475f;
+
+            border-radius: 20px;
+
+            background:
+                #0f2336;
+        }
+
+        main {
+            width: min(
+                1250px,
+                92%
+            );
+
+            margin:
+                55px auto 70px;
+        }
+
+        .hero {
+            text-align: center;
+            max-width: 850px;
+            margin: 0 auto 42px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+
+            padding:
+                7px 12px;
+
+            border:
+                1px solid #26506c;
+
+            border-radius:
+                999px;
+
+            color:
+                #63d8ff;
+
+            background:
+                #0e2234;
+
+            font-size:
+                12px;
+
+            margin-bottom:
+                18px;
+        }
+
+        .hero h1 {
+            font-size:
+                clamp(
+                    34px,
+                    6vw,
+                    58px
+                );
+
+            line-height: 1.08;
+
+            margin-bottom: 18px;
+        }
+
+        .hero h1 span {
+            color: #63d8ff;
+        }
+
+        .hero p {
+            color: #8ea5bd;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .mode-section {
+            max-width: 900px;
+            margin: 0 auto 40px;
+        }
+
+        .mode-tabs {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .mode-tab {
+            border:
+                1px solid #213a53;
+
+            background:
+                #0d1b2d;
+
+            color:
+                #dce8f4;
+
+            border-radius:
+                12px;
+
+            padding:
+                15px;
+
+            cursor: pointer;
+
+            font-size:
+                14px;
+
+            font-weight:
+                700;
+
+            transition:
+                0.2s;
+        }
+
+        .mode-tab:hover {
+            border-color:
+                #3c6786;
+
+            background:
+                #112338;
+        }
+
+        .mode-tab.active {
+            color:
+                #73ddff;
+
+            border-color:
+                #3e8bad;
+
+            background:
+                #123049;
+        }
+
+        .upload-panel {
+            display: none;
+
+            background:
+                #0d1b2d;
+
+            border:
+                1px solid #1d344d;
+
+            border-radius:
+                18px;
+
+            padding:
+                30px;
+        }
+
+        .upload-panel.active {
+            display: block;
+        }
+
+        .panel-title {
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .panel-subtitle {
+            color: #8198af;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .upload-zone {
+            border:
+                2px dashed #2a4c67;
+
+            border-radius:
+                14px;
+
+            background:
+                #091625;
+
+            padding:
+                42px 20px;
+
+            text-align: center;
+
+            transition:
+                0.2s;
+        }
+
+        .upload-zone:hover {
+            border-color:
+                #58bfe5;
+
+            background:
+                #0c1b2d;
+        }
+
+        .upload-icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .upload-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .upload-desc {
+            color: #70879f;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            width: 100%;
+            max-width: 500px;
+
+            background:
+                #102238;
+
+            color:
+                #dce8f4;
+
+            padding:
+                12px;
+
+            border:
+                1px solid #25435d;
+
+            border-radius:
+                8px;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+
+            border: none;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1c7798,
+                    #248cb1
+                );
+
+            color: white;
+
+            padding:
+                13px 24px;
+
+            border-radius:
+                9px;
+
+            font-size:
+                14px;
+
+            font-weight:
+                700;
+
+            cursor: pointer;
+
+            min-width:
+                180px;
+
+            transition:
+                0.2s;
+        }
+
+        .submit-btn:hover {
+            transform:
+                translateY(-2px);
+        }
+
+        .warning {
+            margin-top:
+                18px;
+
+            padding:
+                12px 14px;
+
+            border:
+                1px solid #5f4922;
+
+            border-radius:
+                8px;
+
+            background:
+                #2a2110;
+
+            color:
+                #e9cb8f;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.6;
+        }
+
+        .flash-message {
+            max-width:
+                900px;
+
+            margin:
+                0 auto 20px;
+
+            padding:
+                13px 16px;
+
+            border-radius:
+                10px;
+
+            color:
+                #ffd4d4;
+
+            background:
+                #32191c;
+
+            border:
+                1px solid #653039;
+
+            font-size:
+                13px;
+        }
+
+        .features {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap:
+                16px;
+
+            margin-top:
+                38px;
+        }
+
+        .feature-card {
+            background:
+                #0d1b2d;
+
+            border:
+                1px solid #1c3048;
+
+            border-radius:
+                14px;
+
+            padding:
+                20px;
+        }
+
+        .feature-number {
+            color: #58cdea;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .feature-text {
+            color: #71889e;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+
+            padding:
+                30px 20px;
+
+            border-top:
+                1px solid #182b41;
+
+            color:
+                #62788e;
+
+            font-size:
+                12px;
+
+            line-height:
+                1.8;
+        }
+
+        @media (
+            max-width: 900px
+        ) {
+            .features {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+        }
+
+        @media (
+            max-width: 600px
+        ) {
+            header {
+                padding:
+                    12px 16px;
+            }
+
+            .header-status,
+            .brand-subtitle {
+                display: none;
+            }
+
+            main {
+                margin-top:
+                    35px;
+            }
+
+            .mode-tabs,
+            .features {
+                grid-template-columns:
+                    1fr;
+            }
+
+            .upload-panel {
+                padding:
+                    20px;
+            }
+
+            .upload-zone {
+                padding:
+                    30px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="brand">
+
+        <div class="logo">
+            Semantic
+            <span>
+                3D Twin
+            </span>
+        </div>
+
+        <div class="brand-subtitle">
+            AI-Powered Indoor Reconstruction
+            & Spatial Intelligence
+        </div>
+
+    </div>
+
+    <div class="header-status">
+        ● System Ready
+    </div>
+
+</header>
+
+
+<main>
+
+    <section class="hero">
+
+        <div class="hero-badge">
+            Semantic 3D Indoor Digital Twin Platform
+        </div>
+
+        <h1>
+            Transform Indoor Scenes Into
+            <span>
+                Semantic 3D Digital Twins
+            </span>
+        </h1>
+
+        <p>
+            Upload a room image or indoor video.
+            The system combines YOLOv8n,
+            Depth Anything V2, Open3D and
+            Three.js to detect objects,
+            estimate relative depth,
+            reconstruct 3D point clouds and
+            generate semantic digital twin data.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages() %}
+
+        {% if messages %}
+
+            {% for message in messages %}
+
+                <div class="flash-message">
+                    {{ message }}
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <section class="mode-section">
+
+        <div class="mode-tabs">
+
+            <button
+                id="imageTab"
+                class="mode-tab active"
+                onclick="showMode('image')"
+                type="button"
+            >
+                🖼 Image Analysis
+            </button>
+
+            <button
+                id="videoTab"
+                class="mode-tab"
+                onclick="showMode('video')"
+                type="button"
+            >
+                🎥 Video Analysis
+            </button>
+
+        </div>
+
+
+        <!-- IMAGE -->
+        <div
+            id="imagePanel"
+            class="upload-panel active"
+        >
+
+            <h2 class="panel-title">
+                Image-Based Digital Twin
+            </h2>
+
+            <p class="panel-subtitle">
+                Upload a single indoor room image
+                to generate object detections,
+                relative depth, a colored point
+                cloud, semantic 3D objects and
+                digital twin JSON.
+            </p>
+
+
+            <form
+                action="/upload"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <div class="upload-zone">
+
+                    <div class="upload-icon">
+                        🏠
+                    </div>
+
+                    <div class="upload-title">
+                        Select a Room Image
+                    </div>
+
+                    <div class="upload-desc">
+                        Supported formats:
+                        JPG, JPEG and PNG
+                    </div>
+
+                    <input
+                        class="file-input"
+                        type="file"
+                        name="room_image"
+                        accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                        required
+                    >
+
+                    <br>
+
+                    <button
+                        class="submit-btn"
+                        type="submit"
+                    >
+                        Analyze Room Image
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div class="warning">
+                Depth values and reconstructed
+                coordinates are relative estimates
+                from a monocular RGB image.
+                They are not metric room
+                measurements.
+            </div>
+
+        </div>
+
+
+        <!-- VIDEO -->
+        <div
+            id="videoPanel"
+            class="upload-panel"
+        >
+
+            <h2 class="panel-title">
+                Video-Based Digital Twin
+            </h2>
+
+            <p class="panel-subtitle">
+                Upload a short indoor video.
+                The system samples frames,
+                detects objects, estimates depth
+                and creates an independent
+                point-cloud reconstruction for
+                each processed frame.
+            </p>
+
+
+            <form
+                action="/upload-video"
+                method="POST"
+                enctype="multipart/form-data"
+            >
+
+                <div class="upload-zone">
+
+                    <div class="upload-icon">
+                        🎬
+                    </div>
+
+                    <div class="upload-title">
+                        Select an Indoor Video
+                    </div>
+
+                    <div class="upload-desc">
+                        Supported formats:
+                        MP4, AVI, MOV, MKV and WEBM
+                        <br>
+                        For faster testing, use a
+                        short indoor video.
+                    </div>
+
+                    <input
+                        class="file-input"
+                        type="file"
+                        name="room_video"
+                        accept=".mp4,.avi,.mov,.mkv,.webm,video/*"
+                        required
+                    >
+
+                    <br>
+
+                    <button
+                        class="submit-btn"
+                        type="submit"
+                    >
+                        Analyze Room Video
+                    </button>
+
+                </div>
+
+            </form>
+
+
+            <div class="warning">
+                Current video processing generates
+                independent per-frame 3D
+                reconstructions. Global
+                multi-frame registration and
+                point-cloud fusion are the next
+                stage of the project.
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="features">
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                01
+            </div>
+
+            <div class="feature-title">
+                YOLOv8n
+            </div>
+
+            <div class="feature-text">
+                Detects and classifies semantic
+                indoor objects using the COCO
+                object classes.
+            </div>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                02
+            </div>
+
+            <div class="feature-title">
+                Depth Anything V2
+            </div>
+
+            <div class="feature-text">
+                Estimates relative scene depth
+                from monocular RGB images and
+                video frames.
+            </div>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                03
+            </div>
+
+            <div class="feature-title">
+                Open3D
+            </div>
+
+            <div class="feature-text">
+                Converts RGB and relative depth
+                into colored 3D point-cloud
+                reconstructions.
+            </div>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                04
+            </div>
+
+            <div class="feature-title">
+                Semantic Digital Twin
+            </div>
+
+            <div class="feature-text">
+                Combines detected objects,
+                relative 3D positions and
+                reconstruction metadata into
+                structured digital twin data.
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    Semantic 3D Reconstruction
+    for Indoor Digital Twins
+
+    <br>
+
+    YOLOv8n • Depth Anything V2 •
+    Open3D • Flask • Three.js
+
+</footer>
+
+
+<script>
+    function showMode(mode) {
+
+        const imagePanel =
+            document.getElementById(
+                "imagePanel"
+            );
+
+        const videoPanel =
+            document.getElementById(
+                "videoPanel"
+            );
+
+        const imageTab =
+            document.getElementById(
+                "imageTab"
+            );
+
+        const videoTab =
+            document.getElementById(
+                "videoTab"
+            );
+
+
+        if (mode === "image") {
+
+            imagePanel.classList.add(
+                "active"
+            );
+
+            videoPanel.classList.remove(
+                "active"
+            );
+
+            imageTab.classList.add(
+                "active"
+            );
+
+            videoTab.classList.remove(
+                "active"
+            );
+
+        } else {
+
+            imagePanel.classList.remove(
+                "active"
+            );
+
+            videoPanel.classList.add(
+                "active"
+            );
+
+            imageTab.classList.remove(
+                "active"
+            );
+
+            videoTab.classList.add(
+                "active"
+            );
+
+        }
+    }
+</script>
+
+</body>
+
+</html>

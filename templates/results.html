@@ -1,0 +1,2255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Semantic 3D Indoor Digital Twin Platform</title>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/PLYLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #07111f;
+            color: #e8eef7;
+            min-height: 100vh;
+        }
+
+        header {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 35px;
+            background: rgba(7, 17, 31, 0.96);
+            border-bottom: 1px solid #1c3048;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand-area {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+
+        .logo span {
+            color: #63d8ff;
+        }
+
+        .brand-subtitle {
+            color: #7188a1;
+            font-size: 11px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #dce7f5;
+            border: 1px solid #30445e;
+            padding: 9px 16px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #14253a;
+        }
+
+        main {
+            width: min(1450px, 94%);
+            margin: 30px auto 60px;
+        }
+
+        .page-title {
+            margin-bottom: 26px;
+        }
+
+        .page-title h1 {
+            font-size: 34px;
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            color: #8fa5bd;
+            line-height: 1.6;
+        }
+
+        .status-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            background: #102238;
+            border: 1px solid #203b57;
+            color: #a9bfd6;
+            font-size: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #54d698;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #0d1b2d;
+            border: 1px solid #1c3048;
+            border-radius: 14px;
+            padding: 22px;
+            transition: 0.25s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: #315474;
+        }
+
+        .stat-label {
+            color: #8298b0;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 29px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-description {
+            color: #6f859d;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.75fr;
+            gap: 20px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .summary-item {
+            background: #101f32;
+            border: 1px solid #20364f;
+            border-radius: 10px;
+            padding: 14px;
+        }
+
+        .summary-label {
+            color: #7f94aa;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .card {
+            background: #0d1b2d;
+            border: 1px solid #1c3048;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            margin-bottom: 18px;
+        }
+
+        .card-subtitle {
+            color: #8298b0;
+            font-size: 13px;
+            margin-top: -10px;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .image-box {
+            background: #050b14;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #1d3047;
+        }
+
+        .image-box img {
+            display: block;
+            width: 100%;
+            max-height: 550px;
+            object-fit: contain;
+        }
+
+        #viewer {
+            width: 100%;
+            height: 600px;
+            background: #03070d;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #1d3047;
+            position: relative;
+        }
+
+        .viewer-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .viewer-controls button {
+            background: #13263c;
+            color: #dce7f5;
+            border: 1px solid #2a4561;
+            padding: 8px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .viewer-controls button:hover {
+            background: #1a344e;
+        }
+
+        .viewer-note {
+            color: #71889f;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        .inventory-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            background: #101f32;
+            border: 1px solid #20364f;
+            border-radius: 9px;
+        }
+
+        .inventory-name {
+            font-weight: 600;
+        }
+
+        .inventory-count {
+            min-width: 32px;
+            text-align: center;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #1a4054;
+            color: #72dfff;
+            font-weight: 700;
+        }
+
+        .confidence-row {
+            margin-bottom: 16px;
+        }
+
+        .confidence-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .bar {
+            height: 8px;
+            background: #17283c;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #55c8ed;
+            border-radius: 20px;
+        }
+
+        .chart-box {
+            min-height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-box canvas {
+            max-height: 300px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #20344c;
+            font-size: 13px;
+        }
+
+        th {
+            color: #91a7bf;
+            font-weight: 600;
+        }
+
+        td {
+            color: #d8e2ed;
+        }
+
+        .confidence {
+            font-weight: 700;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            background: #15364a;
+            color: #6bd9ff;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pipeline-step {
+            background: #12253a;
+            border: 1px solid #29445e;
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+        }
+
+        .arrow {
+            color: #58728e;
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+
+        .timeline-step {
+            background: #101f32;
+            border: 1px solid #20364f;
+            border-radius: 10px;
+            padding: 14px;
+            min-height: 100px;
+        }
+
+        .timeline-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #173d52;
+            color: #69dcff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .timeline-desc {
+            color: #71879d;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .file-link {
+            text-decoration: none;
+            color: #72dfff;
+            padding: 14px;
+            background: #101f32;
+            border: 1px solid #20364f;
+            border-radius: 8px;
+            display: block;
+            transition: 0.2s;
+        }
+
+        .file-link:hover {
+            background: #152a41;
+            transform: translateY(-2px);
+        }
+
+        .file-icon {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 7px;
+        }
+
+        .file-name {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .file-desc {
+            color: #6d839a;
+            font-size: 11px;
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .system-item {
+            background: #101f32;
+            border: 1px solid #20364f;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .system-item strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .system-item span {
+            color: #71889f;
+            font-size: 11px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            background: #1d7899;
+            color: white;
+            font-weight: 600;
+        }
+
+        .action-btn.secondary {
+            background: #172b42;
+            border: 1px solid #2a4561;
+        }
+
+        footer {
+            text-align: center;
+            padding: 32px 20px;
+            color: #637990;
+            border-top: 1px solid #172a40;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .empty-text {
+            color: #71879d;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1200px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .timeline {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .download-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .system-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            header {
+                padding: 12px 15px;
+            }
+
+            main {
+                width: 92%;
+            }
+
+            .stats-grid,
+            .summary-grid,
+            .timeline,
+            .download-grid,
+            .system-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title h1 {
+                font-size: 26px;
+            }
+
+            #viewer {
+                height: 420px;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand-area">
+        <div class="logo">
+            Semantic <span>3D Twin</span>
+        </div>
+
+        <div class="brand-subtitle">
+            AI Powered Indoor Reconstruction and Spatial Intelligence System
+        </div>
+    </div>
+
+    <a
+        href="/"
+        class="back-btn"
+    >
+        ← New Analysis
+    </a>
+</header>
+
+<main>
+
+    <div class="page-title">
+        <h1>
+            Semantic 3D Indoor Digital Twin Platform
+        </h1>
+
+        <p>
+            AI-powered room understanding using object detection,
+            monocular depth estimation, 3D reconstruction and semantic
+            spatial mapping.
+        </p>
+
+        <div class="status-row">
+            <div class="status-chip">
+                <span class="status-dot"></span>
+                Image Processed
+            </div>
+
+            <div class="status-chip">
+                <span class="status-dot"></span>
+                Point Cloud Generated
+            </div>
+
+            <div class="status-chip">
+                <span class="status-dot"></span>
+                Semantic Mapping Complete
+            </div>
+
+            <div class="status-chip">
+                <span class="status-dot"></span>
+                Digital Twin Ready
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics -->
+    <section class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-label">
+                TOTAL OBJECTS
+            </div>
+
+            <div class="stat-value">
+                {{ room_statistics.total_objects }}
+            </div>
+
+            <div class="stat-description">
+                Objects detected using YOLOv8n
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">
+                UNIQUE TYPES
+            </div>
+
+            <div class="stat-value">
+                {{ room_statistics.unique_object_types }}
+            </div>
+
+            <div class="stat-description">
+                Different semantic categories
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">
+                AVG CONFIDENCE
+            </div>
+
+            <div class="stat-value">
+                {{
+                    "%.1f"|format(
+                        room_statistics.average_confidence * 100
+                    )
+                }}%
+            </div>
+
+            <div class="stat-description">
+                Average detection confidence
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">
+                CLOSEST OBJECT
+            </div>
+
+            <div class="stat-value">
+                {% if room_statistics.closest_object %}
+                    {{ room_statistics.closest_object.object }}
+                {% else %}
+                    None
+                {% endif %}
+            </div>
+
+            <div class="stat-description">
+                {% if room_statistics.closest_object %}
+                    Relative depth:
+                    {{ room_statistics.closest_depth }}
+                {% else %}
+                    No objects detected
+                {% endif %}
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Digital Twin Summary -->
+    <div class="card">
+        <h2>
+            Digital Twin Summary
+        </h2>
+
+        <div class="card-subtitle">
+            Core information produced by the current reconstruction.
+        </div>
+
+        <div class="summary-grid">
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    SOURCE IMAGE
+                </div>
+
+                <div class="summary-value">
+                    {{ image_filename }}
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    POINT CLOUD
+                </div>
+
+                <div class="summary-value">
+                    {{ pointcloud_filename }}
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    OBJECTS
+                </div>
+
+                <div class="summary-value">
+                    {{ room_statistics.total_objects }}
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <div class="summary-label">
+                    DEPTH TYPE
+                </div>
+
+                <div class="summary-value">
+                    Relative Monocular Depth
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- Left -->
+        <div>
+
+            <div class="card">
+                <h2>
+                    Interactive Semantic 3D Digital Twin
+                </h2>
+
+                <div class="card-subtitle">
+                    Explore the reconstructed point cloud with semantic
+                    object markers. Drag to rotate, scroll to zoom and
+                    right-drag to pan.
+                </div>
+
+                <div id="viewer"></div>
+
+                <div class="viewer-controls">
+                    <button onclick="resetView()">
+                        Reset View
+                    </button>
+
+                    <button onclick="topView()">
+                        Top View
+                    </button>
+
+                    <button onclick="frontView()">
+                        Front View
+                    </button>
+
+                    <button onclick="sideView()">
+                        Side View
+                    </button>
+
+                    <button onclick="toggleAutoRotate()">
+                        Auto Rotate
+                    </button>
+
+                    <button onclick="toggleMarkers()">
+                        Toggle Markers
+                    </button>
+                </div>
+
+                <div class="viewer-note">
+                    Semantic markers are estimated from object-center pixels
+                    and relative depth. They are prototype-scale spatial
+                    positions, not metric measurements.
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    YOLOv8n Object Detection
+                </h2>
+
+                <div class="image-box">
+                    <img
+                        src="{{
+                            url_for(
+                                'serve_detection',
+                                filename=detection_filename
+                            )
+                        }}"
+                        alt="YOLO Detection"
+                    >
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    Depth Analysis
+                </h2>
+
+                <div class="card-subtitle">
+                    Relative scene depth estimated from the RGB room
+                    image using Depth Anything V2.
+                </div>
+
+                <div class="image-box">
+                    <img
+                        src="{{
+                            url_for(
+                                'serve_depth',
+                                filename=depth_filename
+                            )
+                        }}"
+                        alt="Depth Map"
+                    >
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right -->
+        <div>
+
+            <div class="card">
+                <h2>
+                    Object Distribution
+                </h2>
+
+                <div class="card-subtitle">
+                    Number of detected instances for each object category.
+                </div>
+
+                <div class="chart-box">
+                    <canvas id="objectChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    Object Inventory
+                </h2>
+
+                <div class="card-subtitle">
+                    Semantic objects detected in the room.
+                </div>
+
+                <div class="inventory-list">
+
+                    {% for object_name, count
+                       in room_statistics.object_counts.items() %}
+
+                        <div class="inventory-item">
+                            <div class="inventory-name">
+                                {{ object_name }}
+                            </div>
+
+                            <div class="inventory-count">
+                                {{ count }}
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="inventory-item">
+                            No objects detected.
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>
+                    Detection Confidence
+                </h2>
+
+                <div class="card-subtitle">
+                    Confidence score for each detected object.
+                </div>
+
+                {% for object in semantic_objects %}
+
+                    <div class="confidence-row">
+
+                        <div class="confidence-header">
+                            <span>
+                                {{ object.object }}
+                            </span>
+
+                            <span>
+                                {{
+                                    "%.1f"|format(
+                                        object.confidence * 100
+                                    )
+                                }}%
+                            </span>
+                        </div>
+
+                        <div class="bar">
+                            <div
+                                class="bar-fill"
+                                style="
+                                    width:
+                                    {{ object.confidence * 100 }}%;
+                                "
+                            ></div>
+                        </div>
+
+                    </div>
+
+                {% else %}
+
+                    <p class="empty-text">
+                        No confidence data available.
+                    </p>
+
+                {% endfor %}
+            </div>
+
+            <div class="card">
+                <h2>
+                    Spatial Analysis
+                </h2>
+
+                <div class="card-subtitle">
+                    Relative depth statistics from the semantic scene.
+                </div>
+
+                <div class="inventory-list">
+
+                    <div class="inventory-item">
+                        <span>
+                            Average Depth
+                        </span>
+
+                        <strong>
+                            {{ room_statistics.average_depth }}
+                        </strong>
+                    </div>
+
+                    <div class="inventory-item">
+                        <span>
+                            Closest Depth
+                        </span>
+
+                        <strong>
+                            {{ room_statistics.closest_depth }}
+                        </strong>
+                    </div>
+
+                    <div class="inventory-item">
+                        <span>
+                            Farthest Depth
+                        </span>
+
+                        <strong>
+                            {{ room_statistics.farthest_depth }}
+                        </strong>
+                    </div>
+
+                    <div class="inventory-item">
+                        <span>
+                            Minimum Confidence
+                        </span>
+
+                        <strong>
+                            {{
+                                "%.1f"|format(
+                                    room_statistics.minimum_confidence
+                                    * 100
+                                )
+                            }}%
+                        </strong>
+                    </div>
+
+                    <div class="inventory-item">
+                        <span>
+                            Maximum Confidence
+                        </span>
+
+                        <strong>
+                            {{
+                                "%.1f"|format(
+                                    room_statistics.maximum_confidence
+                                    * 100
+                                )
+                            }}%
+                        </strong>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Semantic Object Table -->
+    <div class="card">
+        <h2>
+            Semantic 3D Object Inventory
+        </h2>
+
+        <div class="card-subtitle">
+            Detected objects mapped from 2D image coordinates into
+            relative 3D space.
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Object</th>
+                        <th>Confidence</th>
+                        <th>Depth</th>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>Z</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for object in semantic_objects %}
+
+                        <tr>
+                            <td>
+                                {{ loop.index }}
+                            </td>
+
+                            <td>
+                                <span class="badge">
+                                    {{ object.object }}
+                                </span>
+                            </td>
+
+                            <td class="confidence">
+                                {{
+                                    "%.1f"|format(
+                                        object.confidence * 100
+                                    )
+                                }}%
+                            </td>
+
+                            <td>
+                                {{ object.depth_normalized }}
+                            </td>
+
+                            <td>
+                                {{ object.position_3d.x }}
+                            </td>
+
+                            <td>
+                                {{ object.position_3d.y }}
+                            </td>
+
+                            <td>
+                                {{ object.position_3d.z }}
+                            </td>
+                        </tr>
+
+                    {% else %}
+
+                        <tr>
+                            <td colspan="7">
+                                No objects detected.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- Processing Timeline -->
+    <div class="card">
+        <h2>
+            Processing Timeline
+        </h2>
+
+        <div class="card-subtitle">
+            Complete image-to-digital-twin processing sequence.
+        </div>
+
+        <div class="timeline">
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Image Upload
+                </div>
+
+                <div class="timeline-desc">
+                    Room image securely received by the Flask backend.
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Object Detection
+                </div>
+
+                <div class="timeline-desc">
+                    YOLOv8n detects and classifies visible room objects.
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Depth Estimation
+                </div>
+
+                <div class="timeline-desc">
+                    Depth Anything V2 generates relative scene depth.
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Point Cloud
+                </div>
+
+                <div class="timeline-desc">
+                    RGB and depth are reconstructed using Open3D.
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Semantic Mapping
+                </div>
+
+                <div class="timeline-desc">
+                    Object detections are positioned in relative 3D space.
+                </div>
+            </div>
+
+            <div class="timeline-step">
+                <div class="timeline-icon">✓</div>
+
+                <div class="timeline-title">
+                    Digital Twin
+                </div>
+
+                <div class="timeline-desc">
+                    Semantic information and reconstruction metadata
+                    are exported.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Reconstruction Pipeline -->
+    <div class="card">
+        <h2>
+            Reconstruction Pipeline
+        </h2>
+
+        <div class="pipeline">
+
+            <div class="pipeline-step">
+                Room Image
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                YOLOv8n
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                Depth Anything V2
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                RGB + Depth
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                Open3D
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                Semantic Mapping
+            </div>
+
+            <div class="arrow">→</div>
+
+            <div class="pipeline-step">
+                Digital Twin
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Download Center -->
+    <div class="card">
+        <h2>
+            Download Center
+        </h2>
+
+        <div class="card-subtitle">
+            Access the generated reconstruction and semantic output files.
+        </div>
+
+        <div class="download-grid">
+
+            <a
+                class="file-link"
+                href="{{
+                    url_for(
+                        'serve_detection',
+                        filename=detection_filename
+                    )
+                }}"
+                target="_blank"
+            >
+                <span class="file-icon">🖼</span>
+
+                <div class="file-name">
+                    Detection Image
+                </div>
+
+                <div class="file-desc">
+                    YOLO annotated room image
+                </div>
+            </a>
+
+            <a
+                class="file-link"
+                href="{{
+                    url_for(
+                        'serve_depth',
+                        filename=depth_filename
+                    )
+                }}"
+                target="_blank"
+            >
+                <span class="file-icon">🌊</span>
+
+                <div class="file-name">
+                    Depth Map
+                </div>
+
+                <div class="file-desc">
+                    Relative 16-bit depth output
+                </div>
+            </a>
+
+            <a
+                class="file-link"
+                href="{{
+                    url_for(
+                        'serve_pointcloud',
+                        filename=pointcloud_filename
+                    )
+                }}"
+            >
+                <span class="file-icon">☁</span>
+
+                <div class="file-name">
+                    Point Cloud
+                </div>
+
+                <div class="file-desc">
+                    Open3D PLY reconstruction
+                </div>
+            </a>
+
+            <a
+                class="file-link"
+                href="{{
+                    url_for(
+                        'serve_semantic',
+                        filename=semantic_filename
+                    )
+                }}"
+            >
+                <span class="file-icon">📄</span>
+
+                <div class="file-name">
+                    Semantic JSON
+                </div>
+
+                <div class="file-desc">
+                    Detected objects and 3D positions
+                </div>
+            </a>
+
+            <a
+                class="file-link"
+                href="{{
+                    url_for(
+                        'serve_digital_twin',
+                        filename=digital_twin_filename
+                    )
+                }}"
+            >
+                <span class="file-icon">🏢</span>
+
+                <div class="file-name">
+                    Digital Twin JSON
+                </div>
+
+                <div class="file-desc">
+                    Final semantic twin representation
+                </div>
+            </a>
+
+        </div>
+
+        <div class="action-row">
+
+            <a
+                class="action-btn"
+                href="{{
+                    url_for(
+                        'serve_pointcloud',
+                        filename=pointcloud_filename
+                    )
+                }}"
+            >
+                Download Point Cloud
+            </a>
+
+            <a
+                class="action-btn secondary"
+                href="/"
+            >
+                Analyze Another Room
+            </a>
+
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="card">
+        <h2>
+            System Information
+        </h2>
+
+        <div class="card-subtitle">
+            Technologies powering the Semantic 3D Digital Twin pipeline.
+        </div>
+
+        <div class="system-grid">
+
+            <div class="system-item">
+                <strong>
+                    YOLOv8n
+                </strong>
+
+                <span>
+                    Object Detection
+                </span>
+            </div>
+
+            <div class="system-item">
+                <strong>
+                    Depth Anything V2
+                </strong>
+
+                <span>
+                    Monocular Depth
+                </span>
+            </div>
+
+            <div class="system-item">
+                <strong>
+                    Open3D
+                </strong>
+
+                <span>
+                    Point Cloud Reconstruction
+                </span>
+            </div>
+
+            <div class="system-item">
+                <strong>
+                    Three.js
+                </strong>
+
+                <span>
+                    Interactive 3D Viewer
+                </span>
+            </div>
+
+            <div class="system-item">
+                <strong>
+                    Flask
+                </strong>
+
+                <span>
+                    Web Application Backend
+                </span>
+            </div>
+
+        </div>
+    </div>
+
+</main>
+
+<footer>
+    Semantic 3D Reconstruction for Indoor Digital Twins
+    <br>
+    Pandit Deendayal Energy University
+    <br>
+    Minor Project 2026–2027
+    <br>
+    YOLOv8n • Depth Anything V2 • Open3D • Three.js • Flask
+</footer>
+
+
+<script>
+    const semanticObjects =
+        {{ semantic_objects | tojson }};
+
+    const objectCounts =
+        {{ room_statistics.object_counts | tojson }};
+
+
+    let scene;
+    let camera;
+    let renderer;
+    let controls;
+    let pointCloud;
+
+    let autoRotate = false;
+    let markersVisible = true;
+
+    let pointCloudCenter =
+        new THREE.Vector3(
+            0,
+            0,
+            0
+        );
+
+    let pointCloudScale = 1;
+
+    const markerGroup =
+        new THREE.Group();
+
+
+    function createTextSprite(text) {
+
+        const canvas =
+            document.createElement(
+                "canvas"
+            );
+
+        const context =
+            canvas.getContext(
+                "2d"
+            );
+
+        canvas.width = 512;
+        canvas.height = 128;
+
+        context.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        context.fillStyle =
+            "rgba(4, 12, 22, 0.88)";
+
+        context.fillRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+        context.strokeStyle =
+            "rgba(99, 216, 255, 0.95)";
+
+        context.lineWidth = 4;
+
+        context.strokeRect(
+            2,
+            2,
+            canvas.width - 4,
+            canvas.height - 4
+        );
+
+        context.font =
+            "bold 44px Arial";
+
+        context.textAlign =
+            "center";
+
+        context.textBaseline =
+            "middle";
+
+        context.fillStyle =
+            "#eaf7ff";
+
+        context.fillText(
+            text,
+            canvas.width / 2,
+            canvas.height / 2
+        );
+
+        const texture =
+            new THREE.CanvasTexture(
+                canvas
+            );
+
+        texture.needsUpdate = true;
+
+        const material =
+            new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                depthTest: false
+            });
+
+        const sprite =
+            new THREE.Sprite(
+                material
+            );
+
+        sprite.scale.set(
+            0.34,
+            0.085,
+            1
+        );
+
+        return sprite;
+    }
+
+
+    function addSemanticMarkers() {
+
+        while (
+            markerGroup.children.length > 0
+        ) {
+
+            markerGroup.remove(
+                markerGroup.children[0]
+            );
+        }
+
+
+        semanticObjects.forEach(
+            function(object) {
+
+                if (
+                    !object.position_3d
+                ) {
+                    return;
+                }
+
+
+                const sourcePosition =
+                    new THREE.Vector3(
+
+                        Number(
+                            object.position_3d.x
+                        ),
+
+                        -Number(
+                            object.position_3d.y
+                        ),
+
+                        -Number(
+                            object.position_3d.z
+                        )
+
+                    );
+
+
+                const transformedPosition =
+                    sourcePosition
+                    .clone()
+                    .sub(
+                        pointCloudCenter
+                    )
+                    .multiplyScalar(
+                        pointCloudScale
+                    );
+
+
+                const markerGeometry =
+                    new THREE.SphereGeometry(
+                        0.025,
+                        18,
+                        18
+                    );
+
+
+                const markerMaterial =
+                    new THREE.MeshBasicMaterial({
+                        color:
+                            0xff5c68,
+                        depthTest:
+                            false
+                    });
+
+
+                const marker =
+                    new THREE.Mesh(
+                        markerGeometry,
+                        markerMaterial
+                    );
+
+
+                marker.position.copy(
+                    transformedPosition
+                );
+
+
+                marker.renderOrder = 10;
+
+
+                markerGroup.add(
+                    marker
+                );
+
+
+                const label =
+                    createTextSprite(
+                        object.object
+                    );
+
+
+                label.position.set(
+
+                    transformedPosition.x,
+
+                    transformedPosition.y
+                    + 0.075,
+
+                    transformedPosition.z
+
+                );
+
+
+                label.renderOrder = 11;
+
+
+                markerGroup.add(
+                    label
+                );
+
+            }
+        );
+
+
+        scene.add(
+            markerGroup
+        );
+
+    }
+
+
+    function initViewer() {
+
+        const container =
+            document.getElementById(
+                "viewer"
+            );
+
+
+        scene =
+            new THREE.Scene();
+
+
+        scene.background =
+            new THREE.Color(
+                0x03070d
+            );
+
+
+        camera =
+            new THREE.PerspectiveCamera(
+
+                60,
+
+                container.clientWidth /
+                container.clientHeight,
+
+                0.001,
+
+                1000
+
+            );
+
+
+        camera.position.set(
+            0,
+            0,
+            2.2
+        );
+
+
+        renderer =
+            new THREE.WebGLRenderer({
+                antialias: true
+            });
+
+
+        renderer.setPixelRatio(
+            Math.min(
+                window.devicePixelRatio,
+                2
+            )
+        );
+
+
+        renderer.setSize(
+            container.clientWidth,
+            container.clientHeight
+        );
+
+
+        container.appendChild(
+            renderer.domElement
+        );
+
+
+        controls =
+            new THREE.OrbitControls(
+                camera,
+                renderer.domElement
+            );
+
+
+        controls.enableDamping =
+            true;
+
+
+        controls.dampingFactor =
+            0.05;
+
+
+        controls.enablePan =
+            true;
+
+
+        controls.minDistance =
+            0.3;
+
+
+        controls.maxDistance =
+            10;
+
+
+        const ambientLight =
+            new THREE.AmbientLight(
+                0xffffff,
+                1
+            );
+
+
+        scene.add(
+            ambientLight
+        );
+
+
+        const axes =
+            new THREE.AxesHelper(
+                0.45
+            );
+
+
+        scene.add(
+            axes
+        );
+
+
+        const pointCloudURL =
+            "{{ url_for(
+                'serve_pointcloud',
+                filename=pointcloud_filename
+            ) }}";
+
+
+        const loader =
+            new THREE.PLYLoader();
+
+
+        loader.load(
+
+            pointCloudURL,
+
+            function(geometry) {
+
+                geometry.computeBoundingBox();
+
+
+                const hasColors =
+                    geometry.hasAttribute(
+                        "color"
+                    );
+
+
+                const material =
+                    new THREE.PointsMaterial({
+
+                        size:
+                            0.007,
+
+                        vertexColors:
+                            hasColors,
+
+                        color:
+                            hasColors
+                            ? 0xffffff
+                            : 0x8fdcff,
+
+                        sizeAttenuation:
+                            true
+
+                    });
+
+
+                pointCloud =
+                    new THREE.Points(
+                        geometry,
+                        material
+                    );
+
+
+                scene.add(
+                    pointCloud
+                );
+
+
+                const box =
+                    geometry.boundingBox;
+
+
+                if (box) {
+
+                    const center =
+                        new THREE.Vector3();
+
+
+                    box.getCenter(
+                        center
+                    );
+
+
+                    pointCloudCenter.copy(
+                        center
+                    );
+
+
+                    pointCloud.position.sub(
+                        center
+                    );
+
+
+                    const size =
+                        new THREE.Vector3();
+
+
+                    box.getSize(
+                        size
+                    );
+
+
+                    const maxSize =
+                        Math.max(
+                            size.x,
+                            size.y,
+                            size.z
+                        );
+
+
+                    if (maxSize > 0) {
+
+                        pointCloudScale =
+                            1.5 /
+                            maxSize;
+
+
+                        pointCloud.scale.set(
+                            pointCloudScale,
+                            pointCloudScale,
+                            pointCloudScale
+                        );
+
+                    }
+
+
+                    addSemanticMarkers();
+
+
+                    resetView();
+
+                }
+
+            },
+
+            undefined,
+
+            function(error) {
+
+                console.error(
+                    "PLY loading error:",
+                    error
+                );
+
+            }
+
+        );
+
+
+        animate();
+
+    }
+
+
+    function animate() {
+
+        requestAnimationFrame(
+            animate
+        );
+
+
+        if (
+            autoRotate &&
+            pointCloud
+        ) {
+
+            pointCloud.rotation.y +=
+                0.003;
+
+
+            markerGroup.rotation.y +=
+                0.003;
+
+        }
+
+
+        controls.update();
+
+
+        renderer.render(
+            scene,
+            camera
+        );
+
+    }
+
+
+    function resetView() {
+
+        camera.position.set(
+            0,
+            0,
+            2.2
+        );
+
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+
+        controls.update();
+
+    }
+
+
+    function topView() {
+
+        camera.position.set(
+            0,
+            2.2,
+            0.001
+        );
+
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+
+        controls.update();
+
+    }
+
+
+    function frontView() {
+
+        camera.position.set(
+            0,
+            0,
+            2.2
+        );
+
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+
+        controls.update();
+
+    }
+
+
+    function sideView() {
+
+        camera.position.set(
+            2.2,
+            0,
+            0
+        );
+
+
+        controls.target.set(
+            0,
+            0,
+            0
+        );
+
+
+        controls.update();
+
+    }
+
+
+    function toggleAutoRotate() {
+
+        autoRotate =
+            !autoRotate;
+
+    }
+
+
+    function toggleMarkers() {
+
+        markersVisible =
+            !markersVisible;
+
+
+        markerGroup.visible =
+            markersVisible;
+
+    }
+
+
+    window.addEventListener(
+        "resize",
+        function() {
+
+            if (
+                !camera ||
+                !renderer
+            ) {
+                return;
+            }
+
+
+            const container =
+                document.getElementById(
+                    "viewer"
+                );
+
+
+            camera.aspect =
+                container.clientWidth /
+                container.clientHeight;
+
+
+            camera.updateProjectionMatrix();
+
+
+            renderer.setSize(
+                container.clientWidth,
+                container.clientHeight
+            );
+
+        }
+    );
+
+
+    function createObjectChart() {
+
+        const labels =
+            Object.keys(
+                objectCounts
+            );
+
+
+        const values =
+            Object.values(
+                objectCounts
+            );
+
+
+        const chartCanvas =
+            document.getElementById(
+                "objectChart"
+            );
+
+
+        if (
+            !chartCanvas ||
+            labels.length === 0
+        ) {
+            return;
+        }
+
+
+        new Chart(
+            chartCanvas,
+            {
+                type:
+                    "doughnut",
+
+                data: {
+                    labels:
+                        labels,
+
+                    datasets: [
+                        {
+                            data:
+                                values,
+
+                            borderWidth:
+                                2
+                        }
+                    ]
+                },
+
+                options: {
+
+                    responsive:
+                        true,
+
+                    maintainAspectRatio:
+                        false,
+
+                    plugins: {
+
+                        legend: {
+
+                            position:
+                                "bottom",
+
+                            labels: {
+
+                                color:
+                                    "#dce7f5",
+
+                                padding:
+                                    16
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    initViewer();
+
+    createObjectChart();
+</script>
+
+</body>
+</html>

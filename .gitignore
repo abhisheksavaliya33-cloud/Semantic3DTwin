@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Generated data
+uploads/
+data/
+outputs/
+submission/
+
+# Unused model
+yolo26m.pt
+
+# Development notebooks
+Phase1_test.ipynb
+phase2_test.ipynb
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
